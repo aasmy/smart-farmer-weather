@@ -1,4 +1,11 @@
+# Node.js modules
 node_modules/
-.env/
-package-lock.json/
-package.json/
+
+# Env file (sensitive API keys)
+.env
+
+# Logs
+npm-debug.log*
+
+# Editor configs
+.vscode/
