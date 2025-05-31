@@ -1,27 +1,25 @@
 const express = require('express');
 const router = express.Router();
-const { getWeatherByCity } = require('../services/weatherAPI');
+const { getWeatherByCity, getWeatherByCoords } = require('../services/weatherAPI');
 const { getRecommendation } = require('../services/recommendation');
 
-// GET /weather?city=sakarya&crop=tomato
 router.get('/', async (req, res) => {
-  const city = req.query.city;
-  const crop = req.query.crop || 'tomato'; // default to tomato if no crop specified
-
-  if (!city) {
-    return res.status(400).json({ error: 'Please specify a city using ?city=' });
-  }
+  const { city, lat, lon, crop } = req.query;
+  const cropName = crop || 'your crop';
 
   try {
-    const weatherData = await getWeatherByCity(city);
+    let weatherData;
 
-    // extract only what we need for recommendation
+    if (lat && lon) {
+      weatherData = await getWeatherByCoords(lat, lon);
+    } else if (city) {
+      weatherData = await getWeatherByCity(city);
+    } else {
+      return res.status(400).json({ error: 'Please provide either city name or coordinates.' });
+    }
+
     const { temperature, humidity, windSpeed } = weatherData.current;
-
-    const recommendation = getRecommendation(
-      { temperature, humidity, windSpeed },
-      crop
-    );
+    const recommendation = getRecommendation({ temperature, humidity, windSpeed }, cropName);
 
     res.json({
       ...weatherData,
