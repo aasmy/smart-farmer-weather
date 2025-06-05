@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { getWeatherByCity, getWeatherByCoords } = require('../services/weatherAPI');
-const { getRecommendation } = require('../services/recommendation');
+const { getAIRecommendation } = require('../services/recommendation');
+
 
 router.get('/', async (req, res) => {
   const { city, lat, lon, crop } = req.query;
@@ -19,7 +20,11 @@ router.get('/', async (req, res) => {
     }
 
     const { temperature, humidity, windSpeed } = weatherData.current;
-    const recommendation = getRecommendation({ temperature, humidity, windSpeed }, cropName);
+
+    const recommendation = await getAIRecommendation(
+      { temperature, humidity, windSpeed },
+      cropName
+    );
 
     res.json({
       ...weatherData,

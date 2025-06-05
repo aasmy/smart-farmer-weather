@@ -1,29 +1,32 @@
-/**
- * Provide simple agricultural recommendations based on weather and crop type.
- * @param {Object} weather - Contains temperature, humidity, windSpeed
- * @param {string} crop - Name of the crop (e.g., tomato, wheat)
- * @returns {string} - Recommendation message
- */
-function getRecommendation(weather, crop) {
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+require('dotenv').config();
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+async function getAIRecommendation(weather, crop) {
   const { temperature, humidity, windSpeed } = weather;
 
-  if (temperature < 5) {
-    return `The temperature is very low. It is advised to protect ${crop} from frost.`;
-  }
+  const prompt = `
+You are an agricultural assistant. Provide a concise farming recommendation based on the following weather conditions and crop type.
 
-  if (temperature > 35) {
-    return `High temperature detected. Make sure to irrigate the ${crop} adequately.`;
-  }
+Crop: ${crop}
+Temperature: ${temperature}°C
+Humidity: ${humidity}%
+Wind Speed: ${windSpeed} m/s
 
-  if (humidity < 30) {
-    return `Humidity is low. Irrigating the ${crop} today is recommended.`;
-  }
+Give a short and practical recommendation in English.
+`;
 
-  if (windSpeed > 10) {
-    return `Strong winds expected. Protect the ${crop} from possible damage.`;
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); 
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+    return text.trim();
+  } catch (error) {
+    console.error("Gemini error:", error.message);
+    return "AI could not generate a recommendation at this time.";
   }
-
-  return `Weather conditions are suitable for growing or irrigating ${crop}.`;
 }
 
-module.exports = { getRecommendation };
+module.exports = { getAIRecommendation };
