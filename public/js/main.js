@@ -33,12 +33,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const response = await fetch(`/weather?lat=${latitude}&lon=${longitude}&crop=auto`);
         const data = await response.json();
         showResult(data);
+        const city = document.getElementById('city').value = data.city ;
+
       } catch (err) {
         alert('Failed to fetch weather by location');
       }
     }, () => {
       alert('Unable to retrieve your location');
     });
+
   });
 
   form.addEventListener('submit', async (e) => {
