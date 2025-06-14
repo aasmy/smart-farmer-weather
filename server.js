@@ -3,6 +3,8 @@ const express = require('express');
 const path = require('path');
 const dotenv = require('dotenv');
 const weatherRoutes = require('./routes/weather');
+const notesRouter = require('./routes/notes');
+
 
 
 dotenv.config(); 
@@ -21,6 +23,8 @@ app.use('/weather', weatherRoutes);
 app.get('/', (req, res) => {
   res.render('index');
 });
+app.use('/notes', notesRouter);
+
 
 
 app.listen(PORT, () => {

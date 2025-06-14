@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Farmer Notes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body>
+
+    <!-- Include Navbar -->
+    <%- include('partials/navbar') %>
+
+        <!-- Header Section -->
+        <section class="bg-light py-5 text-center">
+            <div class="container">
+                <h1 class="display-4 fw-bold">Field Notes</h1>
+                <p class="lead text-muted">Track your farm activities, weather, and AI-based crop recommendations</p>
+            </div>
+        </section>
+
+        <!-- Notes Form Section -->
+        <section class="container my-5">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h4 class="card-title mb-3">Add a New Note</h4>
+                    <form id="noteForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <input type="text" id="noteTitle" class="form-control" placeholder="Note Title"
+                                    required />
+                            </div>
+                            <div class="col-md-6">
+                                <input type="text" id="noteCity" class="form-control"
+                                    placeholder="City (for weather)" />
+                            </div>
+                            <div class="col-md-6">
+                                <input type="text" id="noteCrop" class="form-control" placeholder="Crop (optional)" />
+                            </div>
+                            <div class="col-md-6 d-flex align-items-end justify-content-end">
+                                <button type="button" id="fetchWeatherBtn" class="btn btn-outline-primary me-2">Fetch
+                                    Weather</button>
+                                <button type="submit" class="btn btn-success">Save Note</button>
+                            </div>
+                            <div class="col-12">
+                                <textarea id="noteContent" rows="4" class="form-control"
+                                    placeholder="Your note content here..." required></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Notes Display Section -->
+        <section class="container mb-5">
+            <h3 class="mb-3">Your Notes</h3>
+            <div id="notesList" class="row g-4">
+                <!-- Notes will be dynamically injected here -->
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center p-4 bg-light">
+            <p class="mb-0">&copy; 2025 Smart Farmer | Notes feature powered by Node.js & Bootstrap</p>
+        </footer>
+
+        <script src="/js/notes.js"></script>
+</body>
+
+</html>
