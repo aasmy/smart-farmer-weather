@@ -10,11 +10,10 @@
 </head>
 
 <body>
-
-    <!-- Include Navbar -->
+    <!-- Shared Navbar -->
     <%- include('partials/navbar') %>
 
-        <!-- Header Section -->
+        <!-- Page Header -->
         <section class="bg-light py-5 text-center">
             <div class="container">
                 <h1 class="display-4 fw-bold">Field Notes</h1>
@@ -22,32 +21,42 @@
             </div>
         </section>
 
-        <!-- Notes Form Section -->
+        <!-- Form to Add New Note -->
         <section class="container my-5">
             <div class="card shadow">
                 <div class="card-body">
                     <h4 class="card-title mb-3">Add a New Note</h4>
-                    <form id="noteForm">
+
+                    <form id="noteForm" method="POST" action="/notes">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <input type="text" id="noteTitle" class="form-control" placeholder="Note Title"
-                                    required />
+                                <input type="text" id="noteTitle" name="title" class="form-control"
+                                    placeholder="Note Title" required />
+                                <input type="hidden" name="lat" id="latHidden" />
+                                <input type="hidden" name="lon" id="lonHidden" />
                             </div>
+
                             <div class="col-md-6">
-                                <input type="text" id="noteCity" class="form-control"
-                                    placeholder="City (for weather)" />
+                                <input type="text" id="noteCity" name="city" class="form-control"
+                                    placeholder="City (optional)" />
                             </div>
+
                             <div class="col-md-6">
-                                <input type="text" id="noteCrop" class="form-control" placeholder="Crop (optional)" />
+                                <input type="text" id="noteCrop" name="crop" class="form-control"
+                                    placeholder="Crop (optional)" />
                             </div>
+
                             <div class="col-md-6 d-flex align-items-end justify-content-end">
                                 <button type="button" id="fetchWeatherBtn" class="btn btn-outline-primary me-2">Fetch
                                     Weather</button>
                                 <button type="submit" class="btn btn-success">Save Note</button>
                             </div>
+
                             <div class="col-12">
-                                <textarea id="noteContent" rows="4" class="form-control"
+                                <textarea id="noteContent" name="note" rows="4" class="form-control"
                                     placeholder="Your note content here..." required></textarea>
+                                <input type="hidden" id="userInput" name="userInput">
+
                             </div>
                         </div>
                     </form>
@@ -59,13 +68,60 @@
         <section class="container mb-5">
             <h3 class="mb-3">Your Notes</h3>
             <div id="notesList" class="row g-4">
-                <!-- Notes will be dynamically injected here -->
+                <% if (notes.length===0) { %>
+                    <p class="text-muted">No notes available yet.</p>
+                    <% } else { %>
+                        <% notes.forEach((note, index)=> { %>
+                            <div class="col-md-6">
+                                <div class="card shadow-sm">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <%= note.title %> – <%= note.crop || "Unnamed crop" %> in <%= note.city
+                                                        || "Unknown city" %>
+                                        </h5>
+
+                                        <h6 class="card-subtitle text-muted mb-2">
+                                            <%= note.timestamp %>
+                                        </h6>
+
+                                        <p class="card-text">
+                                            <strong>Weather:</strong>
+                                            <%= note.weather.temperature %>°C, <%= note.weather.condition %><br />
+                                                    <strong>AI Advice:</strong>
+                                                    <%= note.recommendation %><br /><br />
+                                                        <% if (note.userInput) { %>
+                                                            <p>
+                                                                <strong>User Note:</strong><br />
+                                                                <%= note.userInput.replace(/\n/g, '<br>' ) %>
+                                                            </p>
+                                                            <% } %>
+
+
+                                        </p>
+
+
+
+                                        <div class="mt-3 d-flex justify-content-end gap-2">
+                                            <button type="button" class="btn btn-sm btn-outline-primary edit-note"
+                                                data-index="<%= index %>">✏ Edit</button>
+
+                                            <form method="POST" action="/notes/delete" style="display: inline;">
+                                                <input type="hidden" name="index" value="<%= index %>" />
+                                                <button class="btn btn-sm btn-outline-danger" type="submit">🗑
+                                                    Delete</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <% }) %>
+                                <% } %>
             </div>
         </section>
 
         <!-- Footer -->
         <footer class="text-center p-4 bg-light">
-            <p class="mb-0">&copy; 2025 Smart Farmer | Notes feature powered by Node.js & Bootstrap</p>
+            <p class="mb-0">&copy; 2025 Smart Farmer | Notes powered by Node.js & Gemini AI</p>
         </footer>
 
         <script src="/js/notes.js"></script>

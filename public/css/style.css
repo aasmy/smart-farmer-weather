@@ -51,3 +51,6 @@ footer {
     .text-muted {
     color: #fefefe !important;
     }
+#notesList{
+  margin: 15px 0;
+}

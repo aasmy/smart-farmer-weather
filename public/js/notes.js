@@ -5,169 +5,110 @@ document.addEventListener('DOMContentLoaded', () => {
   const cropInput = document.getElementById('noteCrop');
   const contentInput = document.getElementById('noteContent');
   const weatherBtn = document.getElementById('fetchWeatherBtn');
-  const notesList = document.getElementById('notesList');
 
-  // Dummy notes storage (can later be replaced by DB)
-  const notes = [];
+  // Handle user input 
+document.getElementById('noteForm').addEventListener('submit', function (e) {
+  const userInputField = document.getElementById('userInput');
+  const noteContent = document.getElementById('noteContent').value;
+  userInputField.value = noteContent;
+});
 
-  // Save Note handler
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    const note = {
-      title: titleInput.value,
-      city: cityInput.value,
-      crop: cropInput.value,
-      content: contentInput.value,
-      timestamp: new Date().toLocaleString()
-    };
-
-    notes.push(note);
-    renderNotes();
-    form.reset();
-  });
-
-  // Fetch Weather handler
+  // Handle "Fetch Weather" button click
   weatherBtn.addEventListener('click', async () => {
-  const city = cityInput.value.trim();
-  const crop = cropInput.value.trim();
+    const city = cityInput.value.trim();
+    const crop = cropInput.value.trim();
 
-  if (city) {
-    // if city is provided, fetch weather by city
-    fetchWeatherByCity(city, crop);
-  } else {
-    // if no city, fetch weather by geolocation
-    if (!navigator.geolocation) {
-      alert("Geolocation not supported by your browser.");
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(async (position) => {
-      const lat = position.coords.latitude;
-      const lon = position.coords.longitude;
-
-      try {
-        const res = await fetch(`/weather?lat=${lat}&lon=${lon}&crop=${crop || "crop"}`);
-        const data = await res.json();
-
-        if (data.error) {
-          alert("Weather fetch failed: " + data.error);
-          return;
-        }
-
-        const weatherText = `Weather in ${data.city}: ${data.current.temperature}°C, ${data.current.condition}. Recommendation: ${data.recommendation}`;
-        contentInput.value = weatherText + "\n\n" + contentInput.value;
-      } catch (err) {
-        alert("Failed to fetch weather by location.");
-        console.error(err);
+    if (city) {
+      fetchWeatherByCity(city, crop);
+    } else {
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your browser.");
+        return;
       }
-    }, () => {
-      alert("Location access denied.");
-    });
-  }
-});
 
-async function fetchWeatherByCity(city, crop) {
-  try {
-    const res = await fetch(`/weather?city=${city}&crop=${crop || "crop"}`);
-    const data = await res.json();
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
 
-    if (data.error) {
-      alert("Weather fetch failed: " + data.error);
-      return;
+        try {
+          const res = await fetch(`/weather?lat=${lat}&lon=${lon}&crop=${crop || "crop"}`);
+          const data = await res.json();
+
+          if (data.error) {
+            alert("Weather fetch failed: " + data.error);
+            return;
+          }
+
+          const weatherText = `Weather in ${data.city}: ${data.current.temperature}°C, ${data.current.condition}. Recommendation: ${data.recommendation}`;
+          alert(weatherText);
+        } catch (err) {
+          alert("Failed to fetch weather data by location.");
+          console.error(err);
+        }
+      }, () => {
+        alert("Location access denied.");
+      });
     }
-
-    const weatherText = `Weather in ${data.city}: ${data.current.temperature}°C, ${data.current.condition}. Recommendation: ${data.recommendation}`;
-    contentInput.value = weatherText + "\n\n" + contentInput.value;
-  } catch (err) {
-    alert("Failed to fetch weather by city.");
-    console.error(err);
-  }
-}
-
-
-  // Render notes dynamically
- function renderNotes() {
-  notesList.innerHTML = "";
-
-  if (notes.length === 0) {
-    notesList.innerHTML = `<p class="text-muted">No notes available yet.</p>`;
-    return;
-  }
-
-  notes.forEach((note, index) => {
-    const card = document.createElement("div");
-    card.className = "col-md-6";
-    card.innerHTML = `
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title">${note.title}</h5>
-          <h6 class="card-subtitle mb-2 text-muted">${note.city} • ${note.crop}</h6>
-          <p class="card-text">${note.content.replace(/\n/g, '<br>')}</p>
-          <small class="text-muted">${note.timestamp}</small>
-          <div class="mt-3 d-flex justify-content-end gap-2">
-            <button class="btn btn-sm btn-outline-primary edit-note" data-index="${index}">✏ Edit</button>
-            <button class="btn btn-sm btn-outline-danger delete-note" data-index="${index}">🗑 Delete</button>
-          </div>
-        </div>
-      </div>
-    `;
-    notesList.appendChild(card);
   });
 
-  // Attach Delete listeners
-  document.querySelectorAll('.delete-note').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const idx = e.target.getAttribute('data-index');
-      notes.splice(idx, 1);
-      renderNotes();
+  // Fetch weather data using city name
+  async function fetchWeatherByCity(city, crop) {
+    try {
+      const res = await fetch(`/weather?city=${city}&crop=${crop || "crop"}`);
+      const data = await res.json();
+
+      if (data.error) {
+        alert("Weather fetch failed: " + data.error);
+        return;
+      }
+
+      const weatherText = `Weather in ${data.city}: ${data.current.temperature}°C, ${data.current.condition}. Recommendation: ${data.recommendation}`;
+      contentInput.value = weatherText + "\n\n" + contentInput.value;
+    } catch (err) {
+      alert("Failed to fetch weather by city.");
+      console.error(err);
+    }
+  }
+
+  // Handle inline editing of notes
+  document.querySelectorAll('.edit-note').forEach(button => {
+    button.addEventListener('click', function () {
+      const card = this.closest('.card');
+      const index = this.dataset.index;
+
+      const titleEl = card.querySelector('.card-title');
+      const textEl = card.querySelector('.card-text');
+
+      const originalTitle = titleEl.innerText;
+      const originalText = textEl.innerText;
+
+      // Replace static text with input fields
+      titleEl.innerHTML = `<input type="text" class="form-control mb-2" value="${originalTitle}">`;
+      textEl.innerHTML = `<textarea class="form-control mb-2">${originalText}</textarea>`;
+
+      // Replace edit button with save button
+      this.outerHTML = `<button class="btn btn-sm btn-success save-note" data-index="${index}">💾 Save</button>`;
+
+      // Handle saving updated note
+      setTimeout(() => {
+        const saveBtn = card.querySelector('.save-note');
+        saveBtn.addEventListener('click', async function () {
+          const newTitle = card.querySelector('input').value;
+          const newNote = card.querySelector('textarea').value;
+
+          const response = await fetch('/notes/edit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ index, title: newTitle, note: newNote })
+          });
+
+          if (response.ok) {
+            location.reload(); // Reload to reflect changes
+          } else {
+            alert("Failed to save changes.");
+          }
+        });
+      }, 0);
     });
   });
-
-  // Attach Edit listeners
-  document.querySelectorAll('.edit-note').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const idx = e.target.getAttribute('data-index');
-      const note = notes[idx];
-
-      titleInput.value = note.title;
-      cityInput.value = note.city;
-      cropInput.value = note.crop;
-      contentInput.value = note.content;
-
-      // Remove the note being edited
-      notes.splice(idx, 1);
-      renderNotes();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  });
-}
-
-  // Delete buttons
-document.querySelectorAll('.delete-note').forEach(btn => {
-  btn.addEventListener('click', (e) => {
-    const idx = e.target.getAttribute('data-index');
-    notes.splice(idx, 1);
-    renderNotes();
-  });
-});
-
-// Edit buttons
-document.querySelectorAll('.edit-note').forEach(btn => {
-  btn.addEventListener('click', (e) => {
-    const idx = e.target.getAttribute('data-index');
-    const note = notes[idx];
-
-    titleInput.value = note.title;
-    cityInput.value = note.city;
-    cropInput.value = note.crop;
-    contentInput.value = note.content;
-
-    // Remove the note being edited
-    notes.splice(idx, 1);
-    renderNotes();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-});
-
 });
