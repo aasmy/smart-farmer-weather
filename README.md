@@ -111,6 +111,7 @@ Each recommendation card includes:
 ## ✨ Demo
 
  live link
+https://smartfarmer-o3uw.onrender.com/
 
 ---
 
