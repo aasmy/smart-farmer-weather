@@ -65,7 +65,7 @@ Each recommendation card includes:
 | Weather API    | OpenWeatherMap API        |
 | AI Engine      | Gemini API (Google AI)    |
 | Data Storage   | Server-side Sessions only |
-| Deployment     | Render.com (optional)     |
+| Deployment     | Render.com                |
 
 ---
 
